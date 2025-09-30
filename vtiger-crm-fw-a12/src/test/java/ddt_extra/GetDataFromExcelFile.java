@@ -34,6 +34,7 @@ public class GetDataFromExcelFile {
 		
 		System.out.println("Cell data value is : " + data);
 		
+		wb.close();
 		
 	}
 

@@ -6,6 +6,11 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -16,11 +21,23 @@ public class CreateDocumentTest {
 	public static void main(String[] args) throws InterruptedException, IOException {
 		
 		// fetch common data from properties file
-		FileInputStream prop = new FileInputStream("./src/test/resources/testdata/commondata.properties");
+		FileInputStream commonData = new FileInputStream("./src/test/resources/testdata/commondata.properties");
 		Properties pObj = new Properties();
-		pObj.load(prop);
+		pObj.load(commonData);
 		String USER_NAME = pObj.getProperty("un");
 		String PASSWORD = pObj.getProperty("pwd");
+		
+		// fetch Test Script data from excel file
+		FileInputStream scriptData = new FileInputStream("./src/test/resources/testdata/TestScriptData.xlsx");
+		Workbook wb = WorkbookFactory.create(scriptData);
+		Sheet sh = wb.getSheet("Doc");
+		Row rw = sh.getRow(3);
+		Cell titleCell = rw.getCell(0);
+		String titleData = titleCell.getStringCellValue();
+		Cell descCell = rw.getCell(1);
+		String description = descCell.getStringCellValue(); 
+		
+		wb.close();
 		
 		// ===== Open browser and launch application ======
 				WebDriver driver = new ChromeDriver();
@@ -56,12 +73,13 @@ public class CreateDocumentTest {
 				Thread.sleep(2500);
 				
 				// enter title
-				String title = "abc" + Math.round(Math.random() * 1000);
+//				String title = "abc" + Math.round(Math.random() * 1000);
+				String title = titleData + (int)(Math.random() * 1000);
 				driver.findElement(By.name("notes_title")).sendKeys(title);
 				
 				// enter description
 				driver.switchTo().frame(0);
-				driver.findElement(By.tagName("body")).sendKeys(title+"'s description");
+				driver.findElement(By.tagName("body")).sendKeys(description);
 				
 				driver.switchTo().defaultContent();
 				

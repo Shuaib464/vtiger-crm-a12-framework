@@ -6,6 +6,11 @@ import java.time.Duration;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -23,6 +28,24 @@ public class CreateOpportunityTest {
 		pObj.load(prop);
 		String USER_NAME = pObj.getProperty("un");
 		String PASSWORD = pObj.getProperty("pwd");
+		
+		// fetch Test Script data from excel file
+		FileInputStream scriptData = new FileInputStream("./src/test/resources/testdata/TestScriptData.xlsx");
+		Workbook wb = WorkbookFactory.create(scriptData);
+		Sheet sh = wb.getSheet("Opportunity");
+		Row rw = sh.getRow(3);
+		Cell titleCell = rw.getCell(0);
+		String opNameData = titleCell.getStringCellValue();
+//		Cell descCell = rw.getCell(1);
+//		String description = descCell.getStringCellValue();
+		Cell orgCell = rw.getCell(1);
+		String orgName = orgCell.getStringCellValue();
+		Cell typeCell = rw.getCell(2);
+		String typeData = typeCell.getStringCellValue();
+		Cell leadCell = rw.getCell(3);
+		String leadSource = leadCell.getStringCellValue();
+				
+		wb.close();
 		
 		// ===== Open browser and launch application ======
 		WebDriver driver = new ChromeDriver();
@@ -51,7 +74,7 @@ public class CreateOpportunityTest {
 		// ========= Create a new opportunity ==============
 		driver.findElement(By.cssSelector("img[alt='Create Opportunity...']")).click();
 		
-		String opName = "abc -" + (int)(Math.random() * 1000 ) + " units";
+		String opName = opNameData + (int)(Math.random() * 1000 ) + " units";
 		WebElement opportunityName = driver.findElement(By.name("potentialname"));
 		opportunityName.sendKeys(opName);
 		
@@ -66,31 +89,30 @@ public class CreateOpportunityTest {
 		for(String id : IDs) {
 			driver.switchTo().window(id);
 			if(!driver.getTitle().contains("Opportunities")) {
-				driver.findElement(By.linkText("vtiger")).click();
+				driver.findElement(By.linkText(orgName)).click();
 				break;
 			}
 		}
 		
-//		driver.switchTo().window(PID);
+		driver.switchTo().window(PID);
 		
 		Thread.sleep(2000);
 		
 		// select Type
 		WebElement typeDD = driver.findElement(By.name("opportunity_type"));
-		new Select(typeDD).selectByVisibleText("Existing Business");
+		new Select(typeDD).selectByVisibleText(typeData);
 		
 		Thread.sleep(500);
 		
 		// select Type
 		WebElement leadDD = driver.findElement(By.name("leadsource"));
-		new Select(leadDD).selectByVisibleText("Partner");
-		
+		new Select(leadDD).selectByVisibleText(leadSource);		
 		driver.findElement(By.cssSelector("input[title='Save [Alt+S]']")).click();
 		
 		Thread.sleep(2000);
 		
 		// ========== Back to Opportunities page =============
-		driver.findElement(By.linkText("Opportunities")).click();
+//		driver.findElement(By.linkText("Opportunities")).click();
 		
 		// =========== Verify Document is Created =================
 		/*
