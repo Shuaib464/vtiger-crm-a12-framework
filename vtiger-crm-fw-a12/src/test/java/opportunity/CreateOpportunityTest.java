@@ -1,12 +1,13 @@
 package opportunity;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.Duration;
-import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriver.Window;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.locators.RelativeLocator;
@@ -14,7 +15,14 @@ import org.openqa.selenium.support.ui.Select;
 
 public class CreateOpportunityTest {
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException, IOException {
+
+		// fetch common data from properties file
+		FileInputStream prop = new FileInputStream("./src/test/resources/testdata/commondata.properties");
+		Properties pObj = new Properties();
+		pObj.load(prop);
+		String USER_NAME = pObj.getProperty("un");
+		String PASSWORD = pObj.getProperty("pwd");
 		
 		// ===== Open browser and launch application ======
 		WebDriver driver = new ChromeDriver();
@@ -26,13 +34,10 @@ public class CreateOpportunityTest {
 		Thread.sleep(2000);
 		
 		// ===== Login ======== 
-		String uname = "admin";
-		String pass = "manager";
-		
 		WebElement username = driver.findElement(By.name("user_name"));
-		username.sendKeys(uname);
+		username.sendKeys(USER_NAME);
 		WebElement password = driver.findElement(By.name("user_password"));
-		password.sendKeys(pass);
+		password.sendKeys(PASSWORD);
 		
 		driver.findElement(By.id("submitButton")).click();
 		
